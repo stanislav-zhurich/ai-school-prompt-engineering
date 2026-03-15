@@ -1,26 +1,15 @@
 import json
 import time
-import os
 from datetime import datetime
 from openai import AzureOpenAI
 
-DIAL_URL = "https://ai-proxy.lab.epam.com"
-MODEL_NAME = "gpt-4o-mini-2024-07-18"
-API_VERSION = "2024-10-21"
-
-
-
 class PromptRunner:
 
-    def __init__(self):
-        self.client = AzureOpenAI(
-            api_key         = os.environ['OPENAI_API_KEY'],
-            api_version     = API_VERSION,
-            azure_endpoint  = DIAL_URL
-        )
-        self.model = MODEL_NAME
-        self.temperature = 0.0
-        self.max_tokens = 1000
+    def __init__(self, model_name: str, client: AzureOpenAI, temperature: float = 0.0, max_tokens: int = 1000):
+        self.client = client
+        self.model = model_name
+        self.temperature = temperature
+        self.max_tokens = max_tokens
 
     # ─────────────────────────────────────────
     # Load prompts from JSON file

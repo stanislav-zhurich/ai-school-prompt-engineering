@@ -1,6 +1,21 @@
 from prompt_runner import PromptRunner
+from scorer import Scorer
+from openai import AzureOpenAI
+import os
 
-runner = PromptRunner()
+DIAL_URL = "https://ai-proxy.lab.epam.com"
+MODEL_NAME = "gpt-4o-mini-2024-07-18"
+API_VERSION = "2024-10-21"
+
+client = AzureOpenAI(
+            api_key         = os.environ['OPENAI_API_KEY'],
+            api_version     = API_VERSION,
+            azure_endpoint  = DIAL_URL
+        )
+
+runner = PromptRunner(MODEL_NAME,  client)
+scorer = Scorer()
+
 resume = open("data/sample_resume.txt").read()
 
 # Run Part 2
