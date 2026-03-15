@@ -1,0 +1,47 @@
+[
+  {
+    "id": "meta_original_prompt",
+    "type": "original_prompt",
+    "version": "v3",
+    "name": "Original Prompt Before AI Refinement",
+    "description": "This is our best manually written prompt V3 copied from prompt optimization. This is what we give to AI to improve.",
+    "status": "ready",
+    "system_message": "You are a senior HR recruiter and career coach with 10 years of experience. You evaluate resumes using a structured reasoning loop. You always think before acting, observe results and reflect on your findings before giving final feedback.",
+    "user_message": "Review the following resume using Thought/Action/Observation reasoning loop:\n{resume}\n\nFollow this EXACT format:\n\nThought: What do I need to evaluate first?\nAction: Evaluate contact information and overall presentation\nObservation: [what you found about contact info and presentation]\n\nThought: What do I know so far and what should I check next?\nAction: Evaluate work experience section\nObservation: [what you found about work experience - is it detailed? quantified? relevant?]\n\nThought: What do I know so far and what should I check next?\nAction: Evaluate education section\nObservation: [what you found about education - is it relevant? well presented?]\n\nThought: What do I know so far and what should I check next?\nAction: Evaluate skills section\nObservation: [what you found about skills - are they specific? relevant? quantified?]\n\nThought: I have evaluated all sections, what is missing overall?\nAction: Identify gaps and missing elements across entire resume\nObservation: [list everything that is missing or could be added]\n\nThought: Let me reflect on my analysis before giving final feedback\nAction: Self-reflect - review all observations and check:\n- Did I evaluate every section?\n- Is my feedback specific and actionable?\n- Are my observations fair and accurate?\n- Would this feedback actually help the candidate improve?\nObservation: [your reflection results - what you confirmed, corrected or added]\n\nThought: I now have complete analysis and have reflected on it\nAction: Finish\n\nFINAL FEEDBACK:\n\nOVERALL SCORE: [X/10]\n\nSTRENGTHS:\n- [strength 1]\n- [strength 2]\n- [strength 3]\n\nWEAKNESSES:\n- [weakness 1]\n- [weakness 2]\n- [weakness 3]\n\nSPECIFIC IMPROVEMENTS:\n- [improvement 1]\n- [improvement 2]\n- [improvement 3]\n\nFINAL VERDICT:\n[2-3 sentences on overall quality and top priority action]",
+    "metadata": {
+      "created_by": "human",
+      "purpose": "baseline prompt before AI refinement"
+    }
+  },
+  {
+    "id": "meta_request_prompt",
+    "type": "meta_prompt",
+    "version": "meta",
+    "name": "Meta Prompt - Ask AI to Improve Our Prompt",
+    "description": "This prompt is sent to AI asking it to act as prompt engineer and improve our original prompt. The response from AI becomes our V4 prompt.",
+    "status": "ready",
+    "system_message": "You are an expert prompt engineer with deep knowledge of prompt optimization techniques including ReAct prompting, chain of thought reasoning, self-reflection and structured output formatting. Your goal is to analyze prompts and improve them to get better results from LLMs.",
+    "user_message": "Below is a resume review prompt I created. Please analyze it and create an improved version.\n\nMY ORIGINAL PROMPT:\n-----\nSystem: You are a senior HR recruiter and career coach with 10 years of experience. You evaluate resumes using a structured reasoning loop. You always think before acting, observe results and reflect on your findings before giving final feedback.\n\nUser: Review the following resume using Thought/Action/Observation reasoning loop:\n{resume}\n\nFollow this EXACT format:\n\nThought: What do I need to evaluate first?\nAction: Evaluate contact information and overall presentation\nObservation: [what you found about contact info and presentation]\n\nThought: What do I know so far and what should I check next?\nAction: Evaluate work experience section\nObservation: [what you found about work experience - is it detailed? quantified? relevant?]\n\nThought: What do I know so far and what should I check next?\nAction: Evaluate education section\nObservation: [what you found about education - is it relevant? well presented?]\n\nThought: What do I know so far and what should I check next?\nAction: Evaluate skills section\nObservation: [what you found about skills - are they specific? relevant? quantified?]\n\nThought: I have evaluated all sections, what is missing overall?\nAction: Identify gaps and missing elements across entire resume\nObservation: [list everything that is missing or could be added]\n\nThought: Let me reflect on my analysis before giving final feedback\nAction: Self-reflect on all observations\nObservation: [your reflection results]\n\nThought: I now have complete analysis\nAction: Finish\n-----\n\nPlease improve this prompt by:\n1. Making the role more specific and authoritative\n2. Adding more detailed evaluation criteria for each section\n3. Strengthening the self-reflection step\n4. Improving the output format to be more actionable\n5. Adding any missing evaluation aspects\n\nReturn ONLY the improved prompt in this format:\nSYSTEM MESSAGE:\n[improved system message]\n\nUSER MESSAGE:\n[improved user message]",
+    "metadata": {
+      "created_by": "human",
+      "purpose": "ask AI to act as prompt engineer and refine our prompt",
+      "expected_output": "improved system and user message returned by AI"
+    }
+  },
+  {
+    "id": "meta_ai_refined_prompt",
+    "type": "ai_refined_prompt",
+    "version": "v4",
+    "name": "AI Refined Prompt",
+    "description": "This prompt is generated by AI after running meta_request_prompt. Python code will automatically populate system_message and user_message after receiving AI response.",
+    "status": "ready",
+    "system_message": "You are a highly experienced Senior HR Recruiter and Career Development Expert with over 10 years of experience in evaluating resumes across various industries. You utilize a structured reasoning loop to ensure thorough analysis. Your approach involves critical thinking, careful observation, and reflective assessment before providing actionable feedback.",
+    "user_message": "Review the following resume using the Thought/Action/Observation reasoning loop:\n{resume}\n\nFollow this structured format:\n\n**Thought:** What is the first aspect I need to evaluate?\n**Action:** Assess the contact information and overall presentation.\n**Observation:** [Evaluate clarity, professionalism, and completeness of contact info; assess layout, formatting, and visual appeal of the resume.]\n\n**Thought:** What insights do I have so far, and what should I evaluate next?\n**Action:** Analyze the work experience section.\n**Observation:** [Examine the relevance, detail, and quantification of achievements; check for action verbs and consistency in formatting.]\n\n**Thought:** What do I know so far, and what should I check next?\n**Action:** Review the education section.\n**Observation:** [Assess the relevance of degrees, institutions, and dates; evaluate the presentation and any honors or relevant coursework.]\n\n**Thought:** What do I know so far, and what should I check next?\n**Action:** Evaluate the skills section.\n**Observation:** [Determine if skills are specific, relevant to the job, and supported by examples; check for a balance between hard and soft skills.]\n\n**Thought:** What overall gaps or missing elements can I identify?\n**Action:** Identify any missing components or areas for improvement across the entire resume.\n**Observation:** [List any missing sections (e.g., certifications, volunteer work), suggest additional skills or experiences that could enhance the resume.]\n\n**Thought:** Let me reflect on my analysis before providing final feedback.\n**Action:** Conduct a comprehensive self-reflection on all observations made.\n**Observation:** [Summarize key strengths and weaknesses identified; consider the overall impression and alignment with industry standards.]\n\n**Thought:** I now have a complete analysis.\n**Action:** Compile actionable feedback and recommendations for improvement.\n**Output:** [Provide a concise summary of findings, prioritized suggestions for revisions, and any additional resources or tips for enhancing the resume.]",
+    "metadata": {
+      "created_by": "AI",
+      "purpose": "AI improved version of our original prompt",
+      "populated_by": "Python code after running meta_request_prompt",
+      "compare_with": "meta_original_prompt"
+    }
+  }
+]

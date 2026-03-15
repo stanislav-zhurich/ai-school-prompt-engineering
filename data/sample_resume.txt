@@ -1,0 +1,36 @@
+John Smith
+Email: johnsmith@gmail.com
+Phone: 555-1234
+Location: New York
+
+WORK EXPERIENCE
+
+ABC Company
+Software Developer
+2020 - Present
+- Worked on software projects
+- Helped team members with tasks
+- Fixed bugs in the system
+- Attended meetings
+- Did code reviews
+
+XYZ Solutions
+Junior Developer
+2018 - 2020
+- Wrote code
+- Worked with databases
+- Helped senior developers
+- Tested applications
+
+EDUCATION
+
+State University
+Bachelor of Computer Science
+Graduated 2018
+
+SKILLS
+Python, Java, SQL, Communication, 
+Teamwork, Problem Solving, Microsoft Office
+
+HOBBIES
+Reading, Gaming, Hiking
