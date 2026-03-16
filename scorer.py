@@ -15,56 +15,96 @@ class Scorer:
     # ─────────────────────────────────────────
     # Score single response using AI
     # ─────────────────────────────────────────
-    def score_response(self, response_text: str) -> dict:
+    def score_response(self, response_text: str, user_message: str) -> dict:
         """
-        Send response to AI and ask it to rate quality
-        Returns dict with scores for each criteria
+        Now takes BOTH response AND the prompt that was used
+        So it can evaluate if response followed prompt instructions
         """
 
         scoring_prompt = f"""
-            You are an expert prompt evaluator.
-            Rate the following resume review response on each criteria below.
+    You are an expert prompt quality evaluator.
 
-            RESPONSE TO EVALUATE:
-            -----
-            {response_text}
-            -----
+    Your goal is to measure PROMPT QUALITY — how well the prompt
+    guided the model to produce good output.
 
-            Rate each criteria from 1 to 5:
-            1 = Very Poor
-            2 = Poor
-            3 = Average
-            4 = Good
-            5 = Excellent
+    IMPORTANT: Modern LLMs produce good responses even to vague prompts.
+    A good response does NOT mean the prompt deserves credit.
+    You are scoring the PROMPT, not the response.
 
-            CRITERIA:
-            - clarity:       Is the feedback clear and easy to understand?
-            - specificity:   Is the feedback specific or vague?
-            - relevance:     Does it actually address the resume content?
-            - completeness:  Did it cover all sections of the resume?
-            - format:        Is the output well structured and organized?
-            - reasoning:     Does it show thinking process and reasoning?
+    PROMPT THAT WAS USED:
+    -----
+    {user_message}
+    -----
 
-            Return your scores in this EXACT format and nothing else:
-            clarity: [score]
-            specificity: [score]
-            relevance: [score]
-            completeness: [score]
-            format: [score]
-            reasoning: [score]
-            comments: [one sentence explaining the scores]
-"""
+    RESPONSE TO EVALUATE:
+    -----
+    {response_text}
+    -----
+
+    SCORING SCALE:
+    5 = Prompt EXPLICITLY requested this feature AND response delivered it fully
+    4 = Prompt EXPLICITLY requested this feature AND response mostly delivered it
+    3 = Prompt did NOT request this feature but response included it anyway (coincidence, no credit to prompt)
+    2 = Prompt requested this feature but response barely followed it
+    1 = Prompt did NOT request this AND response does not have it
+        OR prompt requested it AND response completely ignored it
+
+    DEFINITIONS — "EXPLICITLY requested" means the prompt contained:
+    - Named steps or numbered instructions (for reasoning_shown)
+    - A dedicated reflection or self-check step (for reflection_shown)
+    - A defined output template with section names (for format_followed)
+    - A list of sections to evaluate or a request for actionable suggestions (for specificity)
+    - A requirement to cover all sections or be comprehensive (for completeness)
+    - Clear, detailed instructions overall (for prompt_adherence)
+
+    A prompt that only says "review this" or "tell me if it is good"
+    has NOT explicitly requested any of the above.
+    If the response happens to be specific and complete despite a vague prompt,
+    score specificity = 3 and completeness = 3 (coincidence), NOT 4 or 5.
+
+    ANCHORING EXAMPLES (different domain — for illustration only):
+
+    Example A — Vague prompt: "Check this business plan and tell me if it will work"
+    Correct scores:
+      prompt_adherence: 2  (almost no instructions; response went far beyond what was asked)
+      reasoning_shown:  1  (no reasoning steps requested and response shows none)
+      reflection_shown: 1  (no reflection requested and response contains none)
+      format_followed:  1  (no format specified; if response invents a format anyway = 3 at most)
+      specificity:      3  (prompt never asked for specific criteria; response was specific by coincidence)
+      completeness:     3  (prompt set almost no requirements; response covered many areas by coincidence)
+
+    Example B — Well-structured prompt:
+      "Analyze this business plan using these steps:
+       Step 1 - Market analysis  Step 2 - Financial viability  Step 3 - Risk assessment
+       After each step reflect: did I miss anything important?
+       Output format: STRENGTHS / WEAKNESSES / RECOMMENDATIONS"
+    Correct scores for a response that follows all instructions: 4-5 for all criteria.
+
+    CRITERIA TO SCORE:
+    - prompt_adherence:  Did the prompt provide clear, detailed instructions AND did the response follow them precisely?
+    - reasoning_shown:   Did the prompt EXPLICITLY ask for numbered steps or chain-of-thought reasoning AND did the response show it?
+    - reflection_shown:  Did the prompt EXPLICITLY ask for a self-reflection or self-check step AND did the response include it?
+    - format_followed:   Did the prompt EXPLICITLY define an output template or section names AND did the response follow that exact format?
+    - specificity:       Did the prompt EXPLICITLY request specific criteria, sections to check, or actionable suggestions AND did the response deliver them?
+    - completeness:      Did the prompt EXPLICITLY list sections to cover or require comprehensive coverage AND did the response cover all of them?
+
+    Return ONLY this format:
+    prompt_adherence: [score]
+    reasoning_shown: [score]
+    reflection_shown: [score]
+    format_followed: [score]
+    specificity: [score]
+    completeness: [score]
+    comments: [one sentence explaining the overall score]
+    """
 
         response = self.client.chat.completions.create(
             model=self.model,
             messages=[{"role": "user", "content": scoring_prompt}],
-            temperature=self.temperature,
-            max_tokens=self.max_tokens
+            temperature=0
         )
 
         raw_scores = response.choices[0].message.content
-
-        # Parse scores from response
         scores = self.parse_scores(raw_scores)
 
         return scores
@@ -74,31 +114,17 @@ class Scorer:
     # Parse AI scoring response into dict
     # ─────────────────────────────────────────
     def parse_scores(self, raw_scores: str) -> dict:
-        """
-        Parse raw AI scoring response into scores dict
         
-        Input:
-        clarity: 4
-        specificity: 3
-        ...
-
-        Output:
-        {
-            "clarity": 4,
-            "specificity": 3,
-            ...
-        }
-        """
         scores = {
-            "clarity":       0,
-            "specificity":   0,
-            "relevance":     0,
-            "completeness":  0,
-            "format":        0,
-            "reasoning":     0,
-            "total":         0,
-            "percentage":    0,
-            "comments":      ""
+            "prompt_adherence":  0,
+            "reasoning_shown":   0,
+            "reflection_shown":  0,
+            "format_followed":   0,
+            "specificity":       0,
+            "completeness":      0,
+            "total":             0,
+            "percentage":        0,
+            "comments":          ""
         }
 
         lines = raw_scores.strip().split("\n")
@@ -109,7 +135,7 @@ class Scorer:
                 key = key.strip().lower()
                 value = value.strip()
 
-                if key in scores and key != "comments":
+                if key in scores and key not in ["total", "percentage", "comments"]:
                     try:
                         scores[key] = int(value)
                     except ValueError:
@@ -119,8 +145,14 @@ class Scorer:
                     scores["comments"] = value
 
         # Calculate total and percentage
-        criteria = ["clarity", "specificity", "relevance",
-                    "completeness", "format", "reasoning"]
+        criteria = [
+            "prompt_adherence",
+            "reasoning_shown", 
+            "reflection_shown",
+            "format_followed",
+            "specificity",
+            "completeness"
+        ]
 
         scores["total"] = sum(scores[c] for c in criteria)
         scores["percentage"] = round((scores["total"] / 30) * 100)
@@ -132,46 +164,28 @@ class Scorer:
     # Score all results in a JSON file
     # ─────────────────────────────────────────
     def score_results_file(self, results_file: str) -> None:
-        """
-        Load results JSON file
-        Score each result
-        Save updated scores back to file
 
-        Args:
-            results_file: path to results JSON file
-                          e.g. "results/02_prompt_optimization_results.json"
-        """
-
-        # Load results
         with open(results_file, "r") as file:
             results = json.load(file)
 
-        print(f"Scoring {len(results)} results from {results_file}")
-        print("-" * 50)
-
-        # Score each result
         for result in results:
-
             print(f"Scoring: {result['id']} - {result['name']}")
 
-            # Score the response
-            scores = self.score_response(result["response_text"])
+            # ← Pass BOTH response AND prompt used
+            scores = self.score_response(
+                response_text = result["response_text"],
+                user_message  = result["user_message"]   # ← added this
+            )
 
-            # Update scores in result
             result["scores"] = scores
 
             print(f"Score: {scores['total']}/30 ({scores['percentage']}%)")
-            print(f"Comments: {scores['comments']}")
             print("-" * 50)
 
-            # Small delay between API calls
             time.sleep(1)
 
-        # Save updated results back to file
         with open(results_file, "w") as file:
             json.dump(results, file, indent=2)
-
-        print(f"Saved scored results to {results_file}")
 
 
     # ─────────────────────────────────────────

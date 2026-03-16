@@ -14,7 +14,7 @@ client = AzureOpenAI(
         )
 
 runner = PromptRunner(MODEL_NAME,  client)
-scorer = Scorer()
+scorer = Scorer(MODEL_NAME, client)
 
 resume = open("data/sample_resume.txt").read()
 
@@ -48,3 +48,5 @@ meta_prompting_prompts_results = runner.run_all_prompts(
     "prompts/03_meta_prompting.json",
     resume
 )
+
+scorer.score_all_files([optimized_prompts_results, react_selfreflection_prompts_results, meta_prompting_prompts_results])

@@ -1,5 +1,6 @@
 import json
 import time
+import os
 from datetime import datetime
 from openai import AzureOpenAI
 
@@ -125,12 +126,7 @@ class PromptRunner:
 
             results.append(result)
 
-             # ← Collect and save results
-            self.collect_results(
-                results=results,
-                source_file=json_file_path,
-                output_file=f"results/{json_file_path.split('/')[-1].split('.')[0]}_results.json"
-            )
+           
 
             print(f"Done: {prompt['id']}")
             print(f"Tokens used: {response['tokens_used']}")
@@ -139,7 +135,15 @@ class PromptRunner:
             # Small delay to avoid API rate limits
             time.sleep(1)
 
-        return results
+
+          # ← Collect and save results
+        output_file = f"results/{json_file_path.split('/')[-1].split('.')[0]}_results.json"
+        self.collect_results(
+            results=results,
+            source_file=json_file_path,
+            output_file=output_file
+        )      
+        return output_file
 
 
     # ─────────────────────────────────────────
