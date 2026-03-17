@@ -116,6 +116,7 @@ class PromptRunner:
                 "name": prompt["name"],
                 "type": prompt.get("type", ""),
                 "quality": prompt.get("quality", ""),
+                "need_to_score": prompt.get("need_to_score", True),
                 "system_message": system_message,
                 "user_message": user_message,
                 "response_text": response["response_text"],
@@ -271,6 +272,7 @@ class PromptRunner:
                 "name":             result["name"],
                 "type":             result.get("type", ""),
                 "quality":          result.get("quality", ""),
+                "need_to_score":    result.get("need_to_score", True),
 
                 # Prompt used
                 "system_message":   result["system_message"],
@@ -291,15 +293,15 @@ class PromptRunner:
 
                 # Empty scores - will be filled by scorer.py later
                 "scores": {
-                    "clarity":       0,
-                    "specificity":   0,
-                    "relevance":     0,
-                    "completeness":  0,
-                    "format":        0,
-                    "reasoning":     0,
-                    "total":         0,
-                    "percentage":    0,
-                    "comments":      ""
+                    "prompt_adherence": 0,
+                    "reasoning_shown":  0,
+                    "reflection_shown": 0,
+                    "format_followed":  0,
+                    "specificity":      0,
+                    "completeness":     0,
+                    "total":            0,
+                    "percentage":       0,
+                    "comments":         ""
                 }
             }
 

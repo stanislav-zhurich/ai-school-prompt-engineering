@@ -1,0 +1,36 @@
+Maria Garcia
+Email: maria.garcia@gmail.com
+Phone: 555-5678
+Location: Chicago
+
+WORK EXPERIENCE
+
+Tech Innovations Inc.
+Software Engineer
+2021 - Present
+- Worked on web applications
+- Participated in sprint planning
+- Wrote unit tests
+- Collaborated with designers
+- Updated documentation
+
+DataSoft LLC
+Junior Software Engineer
+2019 - 2021
+- Coded new features
+- Ran SQL queries
+- Attended daily standups
+- Helped fix production issues
+
+EDUCATION
+
+City College
+Bachelor of Information Technology
+Graduated 2019
+
+SKILLS
+JavaScript, Python, HTML, CSS, Communication,
+Time Management, Teamwork, Excel
+
+HOBBIES
+Cooking, Yoga, Traveling

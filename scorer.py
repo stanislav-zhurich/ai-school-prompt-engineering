@@ -171,10 +171,14 @@ class Scorer:
         for result in results:
             print(f"Scoring: {result['id']} - {result['name']}")
 
-            # ← Pass BOTH response AND prompt used
+            if not result.get("need_to_score", True):
+                print("Skipped (need_to_score = false)")
+                print("-" * 50)
+                continue
+
             scores = self.score_response(
                 response_text = result["response_text"],
-                user_message  = result["user_message"]   # ← added this
+                user_message  = result["user_message"]
             )
 
             result["scores"] = scores
