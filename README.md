@@ -8,7 +8,7 @@ A hands-on prompt engineering experiment that evaluates the same resume using pr
 
 The application answers the question: **does a better prompt produce a better response?**
 
-It runs a single resume through five progressively more sophisticated prompts — from a one-liner to a fully structured ReAct reasoning loop — and measures the quality of each response on six criteria. The results are written to JSON files and summarised in a human-readable Markdown report.
+It runs a single resume through five progressively more sophisticated prompts — from a one-liner to a fully structured ReAct reasoning loop — and measures the quality of each prompt on six engineering criteria. The results are written to JSON files and summarised in a human-readable Markdown report.
 
 The three prompt techniques explored are:
 
@@ -123,7 +123,7 @@ python main.py
 This will:
 1. Run all prompts against the resume and save raw responses to `results/`
 2. Ask AI to generate an improved (meta-prompted) version of the best prompt
-3. Score every response on six quality criteria
+3. Score every prompt on six engineering criteria (0–3 per criterion, max 18 total)
 4. Generate the comparison report
 
 ### 5. Run comparator only (re-generate report from existing results)
@@ -153,17 +153,26 @@ Open `results/comparison_report.md` in any Markdown viewer (VS Code preview, Git
 
 ### Scoring criteria
 
-Each response is scored from 1 to 5 on six criteria (max total: 30):
+Each **prompt** is scored from 0 to 3 on six engineering criteria (max total: 18).  
+The scorer uses a chain-of-thought approach: it first writes explicit evidence from the prompt for each criterion, then assigns a score — reducing anchoring bias.
 
 | Criterion | What is measured |
 |-----------|-----------------|
-| Prompt Adherence | Did the prompt give clear instructions and did the response follow them? |
-| Reasoning Shown | Did the prompt explicitly request step-by-step reasoning and was it present? |
-| Reflection Shown | Did the prompt request self-reflection and was a self-check step included? |
-| Format Followed | Did the prompt define an output template and did the response match it? |
-| Specificity | Did the prompt ask for actionable feedback and was it specific? |
-| Completeness | Did the prompt require comprehensive coverage and was it delivered? |
+| Instruction Clarity | Are the instructions precise and unambiguous about *how* to perform the task? |
+| Output Specification | Does the prompt define the expected output format, structure, or length? |
+| Context Sufficiency | Does the prompt supply enough background and constraints for the task? |
+| Reasoning Scaffolding | Does the prompt explicitly structure or guide the reasoning process (e.g. numbered steps, chain-of-thought)? |
+| Constraint Clarity | Does the prompt set explicit boundaries on scope, tone, persona, or what to avoid? |
+| Reliability | Would this prompt consistently produce similar-quality output across multiple runs? |
 
-> **Score 4–5** is only awarded when the prompt explicitly guided the model toward that quality.  
-> **Score 3** means the response happened to include the quality despite the prompt not asking for it.  
-> **Score 1–2** means the prompt asked and the model failed, or neither asked nor delivered.
+**Score scale per criterion:**
+
+| Score | Meaning |
+|-------|---------|
+| 3 | Criterion fully and explicitly addressed in the prompt |
+| 2 | Partially addressed — present but incomplete |
+| 1 | Barely addressed — implied but not enforced |
+| 0 | Not addressed at all |
+
+> The scorer evaluates the **prompt**, not the response.  
+> A capable LLM may produce a good response even from a vague prompt — that does not earn the prompt a higher score.
