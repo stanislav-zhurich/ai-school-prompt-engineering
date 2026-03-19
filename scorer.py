@@ -22,81 +22,84 @@ class Scorer:
         """
 
         scoring_prompt = f"""
-    You are an expert prompt quality evaluator.
+You are a senior prompt engineer evaluating PROMPT QUALITY.
 
-    Your goal is to measure PROMPT QUALITY — how well the prompt
-    guided the model to produce good output.
+Your task is to assess how well the PROMPT (not the response) was engineered.
+A well-crafted prompt should be able to consistently guide any capable LLM
+to produce high-quality output — the response is evidence, not the subject.
 
-    IMPORTANT: Modern LLMs produce good responses even to vague prompts.
-    A good response does NOT mean the prompt deserves credit.
-    You are scoring the PROMPT, not the response.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PROMPT UNDER EVALUATION:
+{user_message}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+MODEL RESPONSE PRODUCED BY THAT PROMPT:
+{response_text}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-    PROMPT THAT WAS USED:
-    -----
-    {user_message}
-    -----
+STEP 1 — THINK BEFORE SCORING
+For each criterion below, write 1–2 sentences of evidence from the prompt
+(not the response) before assigning a score.
 
-    RESPONSE TO EVALUATE:
-    -----
-    {response_text}
-    -----
+CRITERION DEFINITIONS AND SCORING SCALE (0–3):
 
-    SCORING SCALE:
-    5 = Prompt EXPLICITLY requested this feature AND response delivered it fully
-    4 = Prompt EXPLICITLY requested this feature AND response mostly delivered it
-    3 = Prompt did NOT request this feature but response included it anyway (coincidence, no credit to prompt)
-    2 = Prompt requested this feature but response barely followed it
-    1 = Prompt did NOT request this AND response does not have it
-        OR prompt requested it AND response completely ignored it
+1. instruction_clarity
+   Does the prompt give unambiguous, specific instructions?
+   3 = Instructions are precise, leave no room for interpretation
+   2 = Mostly clear but has at least one ambiguous phrase
+   1 = Vague or could be interpreted in multiple ways
+   0 = No real instructions; just a topic or question
 
-    DEFINITIONS — "EXPLICITLY requested" means the prompt contained:
-    - Named steps or numbered instructions (for reasoning_shown)
-    - A dedicated reflection or self-check step (for reflection_shown)
-    - A defined output template with section names (for format_followed)
-    - A list of sections to evaluate or a request for actionable suggestions (for specificity)
-    - A requirement to cover all sections or be comprehensive (for completeness)
-    - Clear, detailed instructions overall (for prompt_adherence)
+2. output_specification
+   Does the prompt define the expected output format, structure, or length?
+   3 = Explicit template, section names, or format rules provided
+   2 = Partial format guidance (e.g., "use bullet points" but no structure)
+   1 = Implicit format expectations only
+   0 = No output format specified at all
 
-    A prompt that only says "review this" or "tell me if it is good"
-    has NOT explicitly requested any of the above.
-    If the response happens to be specific and complete despite a vague prompt,
-    score specificity = 3 and completeness = 3 (coincidence), NOT 4 or 5.
+3. context_sufficiency
+   Does the prompt supply enough background/constraints for the task?
+   3 = All necessary context and constraints are present
+   2 = Adequate context but missing at least one important constraint
+   1 = Minimal context; model must make significant assumptions
+   0 = No context beyond the bare task statement
 
-    ANCHORING EXAMPLES (different domain — for illustration only):
+4. reasoning_scaffolding
+   Does the prompt explicitly structure or guide the reasoning process?
+   3 = Numbered steps, explicit chain-of-thought, or staged analysis required
+   2 = Hints at a process but does not enforce it (e.g., "consider each aspect")
+   1 = Implicitly expects some reasoning but gives no structure
+   0 = No reasoning guidance; model left to decide how to think
 
-    Example A — Vague prompt: "Check this business plan and tell me if it will work"
-    Correct scores:
-      prompt_adherence: 2  (almost no instructions; response went far beyond what was asked)
-      reasoning_shown:  1  (no reasoning steps requested and response shows none)
-      reflection_shown: 1  (no reflection requested and response contains none)
-      format_followed:  1  (no format specified; if response invents a format anyway = 3 at most)
-      specificity:      3  (prompt never asked for specific criteria; response was specific by coincidence)
-      completeness:     3  (prompt set almost no requirements; response covered many areas by coincidence)
+5. constraint_clarity
+   Does the prompt set boundaries on what to include/exclude or how to behave?
+   3 = Explicit constraints (scope, tone, what to avoid, persona, etc.)
+   2 = Some constraints present but incomplete
+   1 = Very loose constraints that could easily be ignored
+   0 = No constraints specified
 
-    Example B — Well-structured prompt:
-      "Analyze this business plan using these steps:
-       Step 1 - Market analysis  Step 2 - Financial viability  Step 3 - Risk assessment
-       After each step reflect: did I miss anything important?
-       Output format: STRENGTHS / WEAKNESSES / RECOMMENDATIONS"
-    Correct scores for a response that follows all instructions: 4-5 for all criteria.
+6. reliability
+   Would this prompt reliably produce similar-quality output if run 10 times
+   on different but equivalent inputs?
+   3 = Highly deterministic prompt — structure and instructions ensure consistency
+   2 = Mostly reliable but leaves some creative latitude
+   1 = Output quality would vary significantly run-to-run
+   0 = Prompt is so underspecified that outputs would be unpredictable
 
-    CRITERIA TO SCORE:
-    - prompt_adherence:  Did the prompt provide clear, detailed instructions AND did the response follow them precisely?
-    - reasoning_shown:   Did the prompt EXPLICITLY ask for numbered steps or chain-of-thought reasoning AND did the response show it?
-    - reflection_shown:  Did the prompt EXPLICITLY ask for a self-reflection or self-check step AND did the response include it?
-    - format_followed:   Did the prompt EXPLICITLY define an output template or section names AND did the response follow that exact format?
-    - specificity:       Did the prompt EXPLICITLY request specific criteria, sections to check, or actionable suggestions AND did the response deliver them?
-    - completeness:      Did the prompt EXPLICITLY list sections to cover or require comprehensive coverage AND did the response cover all of them?
-
-    Return ONLY this format:
-    prompt_adherence: [score]
-    reasoning_shown: [score]
-    reflection_shown: [score]
-    format_followed: [score]
-    specificity: [score]
-    completeness: [score]
-    comments: [one sentence explaining the overall score]
-    """
+STEP 2 — OUTPUT (follow this format exactly, no extra lines)
+instruction_clarity_reasoning: [your evidence from the prompt]
+instruction_clarity: [0-3]
+output_specification_reasoning: [your evidence from the prompt]
+output_specification: [0-3]
+context_sufficiency_reasoning: [your evidence from the prompt]
+context_sufficiency: [0-3]
+reasoning_scaffolding_reasoning: [your evidence from the prompt]
+reasoning_scaffolding: [0-3]
+constraint_clarity_reasoning: [your evidence from the prompt]
+constraint_clarity: [0-3]
+reliability_reasoning: [your evidence from the prompt]
+reliability: [0-3]
+comments: [one sentence summarizing the prompt's main strength and main weakness]
+"""
 
         response = self.client.chat.completions.create(
             model=self.model,
@@ -114,48 +117,41 @@ class Scorer:
     # Parse AI scoring response into dict
     # ─────────────────────────────────────────
     def parse_scores(self, raw_scores: str) -> dict:
-        
-        scores = {
-            "prompt_adherence":  0,
-            "reasoning_shown":   0,
-            "reflection_shown":  0,
-            "format_followed":   0,
-            "specificity":       0,
-            "completeness":      0,
-            "total":             0,
-            "percentage":        0,
-            "comments":          ""
-        }
+
+        criteria = [
+            "instruction_clarity",
+            "output_specification",
+            "context_sufficiency",
+            "reasoning_scaffolding",
+            "constraint_clarity",
+            "reliability",
+        ]
+
+        scores = {c: 0 for c in criteria}
+        scores.update({c + "_reasoning": "" for c in criteria})
+        scores.update({"total": 0, "percentage": 0, "comments": ""})
 
         lines = raw_scores.strip().split("\n")
 
         for line in lines:
-            if ":" in line:
-                key, value = line.split(":", 1)
-                key = key.strip().lower()
-                value = value.strip()
+            if ":" not in line:
+                continue
+            key, value = line.split(":", 1)
+            key = key.strip().lower()
+            value = value.strip()
 
-                if key in scores and key not in ["total", "percentage", "comments"]:
-                    try:
-                        scores[key] = int(value)
-                    except ValueError:
-                        scores[key] = 0
-
-                elif key == "comments":
-                    scores["comments"] = value
-
-        # Calculate total and percentage
-        criteria = [
-            "prompt_adherence",
-            "reasoning_shown", 
-            "reflection_shown",
-            "format_followed",
-            "specificity",
-            "completeness"
-        ]
+            if key in criteria:
+                try:
+                    scores[key] = int(value)
+                except ValueError:
+                    scores[key] = 0
+            elif key.endswith("_reasoning") and key in scores:
+                scores[key] = value
+            elif key == "comments":
+                scores["comments"] = value
 
         scores["total"] = sum(scores[c] for c in criteria)
-        scores["percentage"] = round((scores["total"] / 30) * 100)
+        scores["percentage"] = round((scores["total"] / 18) * 100)
 
         return scores
 
@@ -183,7 +179,7 @@ class Scorer:
 
             result["scores"] = scores
 
-            print(f"Score: {scores['total']}/30 ({scores['percentage']}%)")
+            print(f"Score: {scores['total']}/18 ({scores['percentage']}%)")
             print("-" * 50)
 
             time.sleep(1)

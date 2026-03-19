@@ -3,25 +3,25 @@ from datetime import datetime
 
 
 CRITERIA = [
-    "prompt_adherence",
-    "reasoning_shown",
-    "reflection_shown",
-    "format_followed",
-    "specificity",
-    "completeness",
+    "instruction_clarity",
+    "output_specification",
+    "context_sufficiency",
+    "reasoning_scaffolding",
+    "constraint_clarity",
+    "reliability",
 ]
 
 CRITERIA_LABELS = {
-    "prompt_adherence": "Prompt Adherence",
-    "reasoning_shown":  "Reasoning Shown",
-    "reflection_shown": "Reflection Shown",
-    "format_followed":  "Format Followed",
-    "specificity":      "Specificity",
-    "completeness":     "Completeness",
+    "instruction_clarity":   "Instruction Clarity",
+    "output_specification":  "Output Specification",
+    "context_sufficiency":   "Context Sufficiency",
+    "reasoning_scaffolding": "Reasoning Scaffolding",
+    "constraint_clarity":    "Constraint Clarity",
+    "reliability":           "Reliability",
 }
 
-MAX_SCORE_PER_CRITERION = 5
-MAX_TOTAL = len(CRITERIA) * MAX_SCORE_PER_CRITERION   # 30
+MAX_SCORE_PER_CRITERION = 3
+MAX_TOTAL = len(CRITERIA) * MAX_SCORE_PER_CRITERION   # 18
 
 
 class Comparator:
@@ -70,10 +70,6 @@ class Comparator:
         filled = round((total / MAX_TOTAL) * 20)
         empty  = 20 - filled
         return f"{'█' * filled}{'░' * empty} {total}/{MAX_TOTAL} ({round(total / MAX_TOTAL * 100)}%)"
-
-
-    def _medal(self, rank: int) -> str:
-        return {1: "🥇", 2: "🥈", 3: "🥉"}.get(rank, f"#{rank}")
 
 
     # ─────────────────────────────────────────
@@ -271,7 +267,7 @@ class Comparator:
         report.append(f"**Generated:** {timestamp}  ")
         report.append(f"**Model:** {model}  ")
         report.append(f"**Prompts compared:** {len(scored)}  ")
-        report.append(f"**Scoring scale:** 1–5 per criterion, max {MAX_TOTAL} total\n")
+        report.append(f"**Scoring scale:** 0–3 per criterion, max {MAX_TOTAL} total\n")
         report.append("---\n")
 
         report.append(self._section_combined_table(scored))
