@@ -77,13 +77,14 @@ CRITERION DEFINITIONS AND SCORING SCALE (0–3):
    1 = Very loose constraints that could easily be ignored
    0 = No constraints specified
 
-6. reliability
-   Would this prompt reliably produce similar-quality output if run 10 times
-   on different but equivalent inputs?
-   3 = Highly deterministic prompt — structure and instructions ensure consistency
-   2 = Mostly reliable but leaves some creative latitude
-   1 = Output quality would vary significantly run-to-run
-   0 = Prompt is so underspecified that outputs would be unpredictable
+6. structural_determinism
+   How much does the prompt's design constrain the model's degrees of freedom?
+   (Note: this is NOT empirical reliability — it cannot be measured from a single run.
+   It measures how much the prompt structure limits variation in output.)
+   3 = Prompt is highly constraining — explicit steps, format, and scope leave little room for variation
+   2 = Moderately constraining — some structure present but creative latitude remains
+   1 = Loosely constraining — model has significant freedom to interpret the task
+   0 = Unconstrained — prompt imposes no structure; outputs would be largely unpredictable
 
 STEP 2 — OUTPUT (follow this format exactly, no extra lines)
 instruction_clarity_reasoning: [your evidence from the prompt]
@@ -96,8 +97,8 @@ reasoning_scaffolding_reasoning: [your evidence from the prompt]
 reasoning_scaffolding: [0-3]
 constraint_clarity_reasoning: [your evidence from the prompt]
 constraint_clarity: [0-3]
-reliability_reasoning: [your evidence from the prompt]
-reliability: [0-3]
+structural_determinism_reasoning: [your evidence from the prompt]
+structural_determinism: [0-3]
 comments: [one sentence summarizing the prompt's main strength and main weakness]
 """
 
@@ -124,7 +125,7 @@ comments: [one sentence summarizing the prompt's main strength and main weakness
             "context_sufficiency",
             "reasoning_scaffolding",
             "constraint_clarity",
-            "reliability",
+            "structural_determinism",
         ]
 
         scores = {c: 0 for c in criteria}

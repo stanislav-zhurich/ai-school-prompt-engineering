@@ -163,7 +163,7 @@ The scorer uses a chain-of-thought approach: it first writes explicit evidence f
 | Context Sufficiency | Does the prompt supply enough background and constraints for the task? |
 | Reasoning Scaffolding | Does the prompt explicitly structure or guide the reasoning process (e.g. numbered steps, chain-of-thought)? |
 | Constraint Clarity | Does the prompt set explicit boundaries on scope, tone, persona, or what to avoid? |
-| Reliability | Would this prompt consistently produce similar-quality output across multiple runs? |
+| Structural Determinism | How much does the prompt's structure constrain the model's degrees of freedom? (not empirical reliability — measured from prompt design, not repeated runs) |
 
 **Score scale per criterion:**
 

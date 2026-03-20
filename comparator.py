@@ -8,16 +8,16 @@ CRITERIA = [
     "context_sufficiency",
     "reasoning_scaffolding",
     "constraint_clarity",
-    "reliability",
+    "structural_determinism",
 ]
 
 CRITERIA_LABELS = {
-    "instruction_clarity":   "Instruction Clarity",
-    "output_specification":  "Output Specification",
-    "context_sufficiency":   "Context Sufficiency",
-    "reasoning_scaffolding": "Reasoning Scaffolding",
-    "constraint_clarity":    "Constraint Clarity",
-    "reliability":           "Reliability",
+    "instruction_clarity":    "Instruction Clarity",
+    "output_specification":   "Output Specification",
+    "context_sufficiency":    "Context Sufficiency",
+    "reasoning_scaffolding":  "Reasoning Scaffolding",
+    "constraint_clarity":     "Constraint Clarity",
+    "structural_determinism": "Structural Determinism",
 }
 
 MAX_SCORE_PER_CRITERION = 3
@@ -137,7 +137,7 @@ class Comparator:
 
     def _section_prompts(self, scored: list) -> str:
         """
-        Show the system message and user message for every scored prompt.
+        Show the system message, user message, and model response for every scored prompt.
         Resume content is collapsed to keep the section readable.
         """
         ordered = sorted(scored, key=lambda r: r["scores"]["total"])
@@ -147,6 +147,7 @@ class Comparator:
             name           = r["name"]
             system_message = r.get("system_message", "").strip()
             user_message   = self._collapse_resume(r.get("user_message", "").strip())
+            response_text  = r.get("response_text", "").strip()
 
             lines.append(f"### {name}\n")
 
@@ -158,6 +159,10 @@ class Comparator:
 
             lines.append("**User message:**\n")
             lines.append(f"```\n{user_message}\n```\n")
+
+            if response_text:
+                lines.append("**Model response:**\n")
+                lines.append(f"{response_text}\n")
 
         return "\n".join(lines) + "\n"
 
